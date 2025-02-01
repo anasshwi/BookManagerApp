@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BookManagerApp", "BookManagerApp\BookManagerApp.vcxproj", "{ADCD0752-C7FA-4BB4-BE69-C003800599C5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{A43E767E-E356-4EB2-B9C0-EC99908C7022}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E1A6BE17-632C-4152-A073-F7EF706E3170}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HttpSrc", "shared\HttpSrc\HttpSrc.vcxitems", "{F4BF6FC8-0A3F-4932-AC6D-FA92E7C2A7B2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGuiSrc", "shared\ImGuiSrc\ImGuiSrc.vcxitems", "{B1A13FF4-B046-4EE4-934B-D79F34153152}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGuiLib", "ImGuiLib\ImGuiLib.vcxproj", "{C84356D7-4539-435E-B059-1F4BE9AE73C3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Debug|x64.ActiveCfg = Debug|x64
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Debug|x64.Build.0 = Debug|x64
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Debug|x86.ActiveCfg = Debug|Win32
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Debug|x86.Build.0 = Debug|Win32
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Release|x64.ActiveCfg = Release|x64
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Release|x64.Build.0 = Release|x64
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Release|x86.ActiveCfg = Release|Win32
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5}.Release|x86.Build.0 = Release|Win32
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Debug|x64.ActiveCfg = Debug|x64
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Debug|x64.Build.0 = Debug|x64
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Debug|x86.ActiveCfg = Debug|Win32
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Debug|x86.Build.0 = Debug|Win32
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Release|x64.ActiveCfg = Release|x64
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Release|x64.Build.0 = Release|x64
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Release|x86.ActiveCfg = Release|Win32
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ADCD0752-C7FA-4BB4-BE69-C003800599C5} = {A43E767E-E356-4EB2-B9C0-EC99908C7022}
+		{F4BF6FC8-0A3F-4932-AC6D-FA92E7C2A7B2} = {E1A6BE17-632C-4152-A073-F7EF706E3170}
+		{B1A13FF4-B046-4EE4-934B-D79F34153152} = {E1A6BE17-632C-4152-A073-F7EF706E3170}
+		{C84356D7-4539-435E-B059-1F4BE9AE73C3} = {A43E767E-E356-4EB2-B9C0-EC99908C7022}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		shared\HttpSrc\HttpSrc.vcxitems*{adcd0752-c7fa-4bb4-be69-c003800599c5}*SharedItemsImports = 4
+		shared\ImGuiSrc\ImGuiSrc.vcxitems*{b1a13ff4-b046-4ee4-934b-d79f34153152}*SharedItemsImports = 9
+		shared\ImGuiSrc\ImGuiSrc.vcxitems*{c84356d7-4539-435e-b059-1f4be9ae73c3}*SharedItemsImports = 4
+		shared\HttpSrc\HttpSrc.vcxitems*{f4bf6fc8-0a3f-4932-ac6d-fa92e7c2a7b2}*SharedItemsImports = 9
+	EndGlobalSection
+EndGlobal
