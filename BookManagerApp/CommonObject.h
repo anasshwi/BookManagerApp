@@ -7,6 +7,9 @@ struct Book
 {
 	std::string title;
 	std::vector<std::string> author_name; // Handle multiple authors
+	std::vector<std::string> language;
+	int first_publish_year;
+	std::string key;
 };
 
 struct CommonObjects

@@ -3,7 +3,7 @@
 #include "httplib.h"
 #include "nlohmann/json.hpp"
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Book, title, author_name);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Book, title, author_name, language, first_publish_year, key);
 
 void DownloadThread::operator()(CommonObjects& common)
 {
@@ -22,7 +22,7 @@ void DownloadThread::operator()(CommonObjects& common)
 			book.author = item["author_name"].is_array() ? item["author_name"][0] : "";
 			common.books.push_back(book);
 		}*/
-		std::cout << json_result << std::endl;
+
 		common.books = json_result["docs"].get<std::vector<Book>>();
 
 
