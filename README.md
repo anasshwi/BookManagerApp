@@ -40,7 +40,3 @@ The **Book Management Application** is a simple desktop application that allows 
 4. Click "Leave Note" to add a personal note.
 5. Click "Save Favorites to File" to export favorites.
 
-
-## License
-This project is licensed under the MIT License.
-
