@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "DrawThread.h"
 #include "DownloadThread.h"
 #include "GuiMain.h"
@@ -11,9 +12,31 @@ bool show_fav_list = false;
 bool show_detail_window = false;
 bool show_fav_detail_window = false;
 
+void SaveFavoritesToFile(const  std::vector<Book>& favorites) 
+{
+	//Function that saves favorites list of books to a file saved in the path: "${SolutionDir}\BookManagerApp\".
+	std::ofstream file("favorites.txt");
+	if (!file) {
+		std::cout << "Error: Couldn't open file for writing\n";
+	}
+
+	for (const auto& book : favorites) {
+		file << "Title: " << book.title << "\n";
+		file << "Author(s): ";
+		for (const auto& author : book.author_name) {
+			file << author << "; ";
+		}
+		file << "\nFirst Publish Year: " << book.first_publish_year << "\n";
+		file << "Description: " << book.description << "\n";
+		file << "Rating: " << book.rating << "\n";
+		file << "Personal Note: " << book.personal_note << "\n";
+		file << "---------------------------------------------------------------------------------\n";
+	}
+}
+
 void DrawAppWindow(void* common_ptr)
 {
-	//DownloadThread tmp;
+	//Function that draws the User Interface for the App.
 	auto common = (CommonObjects*)common_ptr;
 	ImGui::Begin("Book Management App");
 	ImGui::Checkbox("Favorites List", &show_fav_list);
@@ -22,8 +45,9 @@ void DrawAppWindow(void* common_ptr)
 	ImGui::SameLine();
 	ImGui::InputText( " ", buff, sizeof(buff));
 	ImGui::SameLine();
-	if (ImGui::Button("Search Books")) {
-		
+	if (ImGui::Button("Search Books")) 
+	{
+		//Start the Thread to search for Books in Url.
 		std::lock_guard<std::mutex> lock(common->mtx);
 		common->searchBar = buff;
 		
@@ -36,6 +60,7 @@ void DrawAppWindow(void* common_ptr)
 
 	if (common->data_ready)
 	{
+		//If the Data from the Search is Ready to Show in the UI.
 		if (ImGui::BeginTable("Book List", 5))  //, flags))
 		{
 			ImGui::TableSetupColumn("#");
@@ -66,7 +91,6 @@ void DrawAppWindow(void* common_ptr)
 						common->Index = i;
 
 						common->download_info_desc.store(true);
-						//common->download_info_rate.store(true);
 						common->cv2.notify_all();
 						show_detail_window = true;
 					}
@@ -80,12 +104,15 @@ void DrawAppWindow(void* common_ptr)
 		}
 	}
 	else {
+		//When theres no data of books to show.
 		ImGui::NewLine();
 		ImGui::Text("Search Books to Get Started!");
 	}
 	ImGui::End();
 
-	if (show_detail_window) {
+	if (show_detail_window)
+	{
+		//Shows the detail window of a selected book.
 		ImGui::Begin("Book Info", &show_detail_window);
 		ImGui::Text("Title: %s", common->books[common->Index].title.c_str());
 		ImGui::NewLine();
@@ -115,7 +142,7 @@ void DrawAppWindow(void* common_ptr)
 		if (std::find(common->FavBooks.begin(), common->FavBooks.end(), common->books[common->Index]) != common->FavBooks.end()) {
 			ImGui::Text("Added to Favorites");
 		}
-		else if(common->info_ready) {
+		else if (common->info_ready) {
 			if (ImGui::Button("Add to Favorites"))
 			{
 				//show details
@@ -131,6 +158,7 @@ void DrawAppWindow(void* common_ptr)
 
 	if (show_fav_list)
 	{
+		//Shows a window with a list of the favorite books saved.
 		ImGui::Begin("Favorites Window", &show_fav_list);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 		ImGui::Text("Here Lies all the Favorite Books that you Selected!");
 		ImGui::SameLine();
@@ -138,11 +166,12 @@ void DrawAppWindow(void* common_ptr)
 			show_fav_list = false;
 		}
 
-		if (ImGui::BeginTable("Book List", 5))  //, flags))
+		if (ImGui::BeginTable("Book List", 6))  //, flags))
 		{
 			ImGui::TableSetupColumn("Name");
 			ImGui::TableSetupColumn("");
 			ImGui::TableSetupColumn("Author");
+			ImGui::TableSetupColumn("");
 			ImGui::TableSetupColumn("");
 			ImGui::TableSetupColumn("");
 			ImGui::TableHeadersRow();
@@ -165,34 +194,27 @@ void DrawAppWindow(void* common_ptr)
 					show_fav_detail_window = true;
 				}
 
-				ImGui::SetNextWindowSize(ImVec2(1000.0f, 0.0f), ImGuiCond_Once);
-				if (ImGui::BeginPopup(popupID.c_str())) {
-					ImGui::Text("Title: %s", book.title.c_str());
-					ImGui::NewLine();
+				ImGui::TableSetColumnIndex(4);
+				if (ImGui::Button(("Leave Note ## " + std::to_string(i)).c_str())){
+					ImGui::OpenPopup(("NotePopup_" + std::to_string(i)).c_str());
+				}
 
-					std::string authors = book.author_name.empty() ? "Unknown" : book.author_name[0];
-					for (size_t i = 1; i < book.author_name.size(); ++i) {
-						authors += ", " + book.author_name[i];
+				if (ImGui::BeginPopup(("NotePopup_" + std::to_string(i)).c_str())) {
+					static char note[256] = "";  // Buffer for note input
+					ImGui::InputTextMultiline("##note", note, IM_ARRAYSIZE(note));
+
+					if (ImGui::Button("Save")) {
+						common->FavBooks[i].personal_note = note;
+						ImGui::CloseCurrentPopup();
 					}
-					ImGui::Text("Authors: %s", authors.c_str());
-					ImGui::NewLine();
-
-					ImGui::Text("Publish Year: %d", book.first_publish_year);
-					ImGui::NewLine();
-
-					ImGui::TextWrapped("Description: %s", book.description.c_str());
-					ImGui::NewLine();
-
-					ImGui::Text("Rating: %.2f", book.rating);
-					ImGui::NewLine();
-
-					if (ImGui::Button("Close")) {
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel")) {
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::EndPopup();
 				}
 
-				ImGui::TableSetColumnIndex(4);
+				ImGui::TableSetColumnIndex(5);
 				
 				if (ImGui::Button(("Remove Book ## " + std::to_string(i)).c_str()))
 				{
@@ -206,13 +228,20 @@ void DrawAppWindow(void* common_ptr)
 
 			}
 			ImGui::EndTable();
+
+			ImGui::NewLine();
+			if (ImGui::Button("Save Favorites to File")) {
+				SaveFavoritesToFile(common->FavBooks);
+			}
 		}
 		
 
 		ImGui::End();
 	}
 
-	if (show_fav_detail_window) {
+	if (show_fav_detail_window) 
+	{
+		//Shows a window with the details of the favorite book selected.
 		ImGui::Begin("Fav Book Info", &show_fav_detail_window);
 		ImGui::Text("Title: %s", common->FavBooks[common->FavIndex].title.c_str());
 		ImGui::NewLine();
@@ -231,6 +260,9 @@ void DrawAppWindow(void* common_ptr)
 		ImGui::NewLine();
 
 		ImGui::Text("Rating: %.2f", common->FavBooks[common->FavIndex].rating);
+		ImGui::NewLine();
+
+		ImGui::Text("Personal Notes: %s", common->FavBooks[common->FavIndex].personal_note.c_str());
 		ImGui::NewLine();
 
 		if (ImGui::Button("Close")) {

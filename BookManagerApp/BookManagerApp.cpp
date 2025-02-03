@@ -7,12 +7,9 @@
 #include "DownloadThread.h"
 
 
-//#include "httplib.h"
-//#include "nlohmann/json.hpp"
-
-
 int main()
 {
+    //Starting the app by init the common object and starting the main threads for search, drawing the UI and the extra info search.
     CommonObjects common;
     DrawThread draw;
     auto draw_th = std::jthread([&] {draw(common); });

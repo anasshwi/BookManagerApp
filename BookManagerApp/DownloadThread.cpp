@@ -4,7 +4,9 @@
 #include "nlohmann/json.hpp"
 #include <thread>
 
-std::string trim(const std::string& str) {
+std::string trim(const std::string& str) 
+{
+	//A helper Function that trims the edges from a string.
 	auto start = std::find_if(str.begin(), str.end(), [](unsigned char ch) {
 		return !std::isspace(ch);
 		});
@@ -16,7 +18,9 @@ std::string trim(const std::string& str) {
 	return (start < end) ? std::string(start, end) : "";
 }
 
-std::string formatQuery(const std::string& input) {
+std::string formatQuery(const std::string& input) 
+{
+	//A helper Function that remove spaces from words and replace with "+".
 	std::string result;
 	bool firstChar = true;
 	for (char c : input) {
@@ -39,17 +43,20 @@ std::string formatQuery(const std::string& input) {
 
 void DownloadThread::operator()(CommonObjects& common)
 {
+	//Function that download the search query and waits for each search request in a loop thread.
 	while(!common.exit_flag.load()){
 		std::unique_lock<std::mutex> lock(common.mtx);
 
+		//If lock isnt released wait until it is.
 		common.cv.wait(lock, [&common] {return common.start_download.load() || common.exit_flag.load(); });
 
-		if (common.exit_flag.load()) break;
+		if (common.exit_flag.load()) { break; }
 
 		common.data_ready = false;
 
 		httplib::Client cli("https://openlibrary.org");
 
+		// Using the helper function to make the query for the search....
 		std::string toSearch = trim(common.searchBar);
 		toSearch = formatQuery(toSearch);
 
@@ -60,42 +67,47 @@ void DownloadThread::operator()(CommonObjects& common)
 		auto res = cli.Get(url.c_str());
 		if (res && res->status == 200)
 		{
-		auto json_result = nlohmann::json::parse(res->body);
-		std::cout << json_result["num_found"] << "\n";
+			auto json_result = nlohmann::json::parse(res->body);
+			std::cout << json_result["num_found"] << "\n";
 
-		try {
-			common.books.clear();
-			//common.books = json_result["docs"].get<std::vector<Book>>();
+			try {
+				common.books.clear();
 
-			for (auto& item : json_result["docs"]) {
-				Book book;
-				if (item.contains("title") && item.contains("author_name") && item.contains("first_publish_year") && item.contains("key")) {
-					book.title = item["title"];
-					book.author_name = item["author_name"];
-					//book.language = item["language"];
-					book.first_publish_year = item["first_publish_year"];
-					book.key = item["key"];
-					common.books.push_back(book);
+				//Prasing the data and inserting it in the vector Books in the common object.
+				for (auto& item : json_result["docs"]) {
+					Book book;
+					if (item.contains("title") && item.contains("author_name") && item.contains("first_publish_year") && item.contains("key")) {
+						book.title = item["title"];
+						book.author_name = item["author_name"];
+						//book.language = item["language"];
+						book.first_publish_year = item["first_publish_year"];
+						book.key = item["key"];
+						common.books.push_back(book);
 					
+					}
 				}
 			}
-		}
-		catch (const nlohmann::json::exception& e) {
-			std::cerr << "JSON Error: " << e.what() << std::endl;
-		}
+			catch (const nlohmann::json::exception& e) {
+				std::cerr << "JSON Error: " << e.what() << std::endl;
+			}
 
-		if (common.books.size() > 0)
-			common.data_ready = true;
+			if (common.books.size() > 0) {
+				common.data_ready = true;
+			}
 		}
+		//releasing the lock after finishing the search
 		common.start_download.store(false);
 		common.cv.notify_all();
 	}
 }
 
-void DownloadThread::getDescInfoDesc(CommonObjects& common) {
+void DownloadThread::getDescInfoDesc(CommonObjects& common) 
+{
+	//Function that gets Description and rating of selected books, works as a infinite while loop that waits for requests to search for that info.
 	while (!common.exit_flag.load()) {
 		std::unique_lock<std::mutex> lock(common.mtx);
 
+		//Waits for the lock to be released and for a search request to be made.
 		common.cv2.wait(lock, [&common] {return common.download_info_desc.load() || common.exit_flag.load(); });
 
 		if (common.exit_flag.load()) {
@@ -107,6 +119,7 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common) {
 		httplib::Client cli("https://openlibrary.org");
 		std::string workUrl = common.books[common.Index].key + ".json?fields=title,description";
 		try {
+			//Getting Description:
 			auto desc = cli.Get(workUrl.c_str());
 			if (desc && desc->status == 200)
 			{
@@ -145,6 +158,7 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common) {
 				common.books[common.Index].description = "No Known Data\n";
 			}
 
+			//Getting Rating:
 			std::string ratingUrl = common.books[common.Index].key + "/ratings.json";
 			auto rate = cli.Get(ratingUrl.c_str());
 			if (rate && rate->status == 200) {
@@ -163,6 +177,7 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common) {
 			std::cerr << "JSON Error: " << e.what() << std::endl;
 		}
 		
+		//Releasing the lock after finishing the job.
 		common.info_ready = true;
 		common.download_info_desc.store(false);
 	}
