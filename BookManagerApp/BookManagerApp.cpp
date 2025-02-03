@@ -18,10 +18,11 @@ int main()
     auto draw_th = std::jthread([&] {draw(common); });
     DownloadThread down;
     auto down_th = std::jthread([&] {down(common); });
-    down.SetUrl("http://....");
     std::cout << "running...\n";
+    auto downInfoDesc = std::jthread([&] {down.getDescInfoDesc(common); });
     down_th.join();
     draw_th.join();
+    downInfoDesc.join();
 
     return 0;
 }

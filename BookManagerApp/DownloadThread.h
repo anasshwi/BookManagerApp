@@ -5,7 +5,8 @@ class DownloadThread
 {
 public:
 	void operator()(CommonObjects& common);
-	void SetUrl(std::string_view new_url);
+	void getDescInfoRate(CommonObjects& common);
+	void getDescInfoDesc(CommonObjects& common);
 private:
 	std::string _download_url;
 };
