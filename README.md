@@ -36,7 +36,8 @@ The **Book Management Application** is a simple desktop application that allows 
 ## Usage
 1. Launch the application.
 2. Use the search bar to find books.
-3. Click on a book to add it to favorites.
-4. Click "Leave Note" to add a personal note.
-5. Click "Save Favorites to File" to export favorites.
+3. Click on a book to view details and to add it to favorites.
+4. Check the box on the top of the window to view Favorites List Window.
+5. Click "Leave Note" to add a personal note.
+6. Click "Save Favorites to File" to export favorites.
 
