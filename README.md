@@ -34,7 +34,7 @@ The **Book Management Application** is a simple desktop application that allows 
    
 ## Fixing Errors
 - If you face errors like missing .dll files (libcrypto.. / libssl...)
-- You can find these files in the following path: "\shared\HttpSrc\openssl\bin"
+- You can find these files in the following path: "\shared\HttpSrc\openssl\bin", copy them next to the .exe file of the app "${projectDirectory}\x64\".
 - Or you can install OpenSSL from Shining Light Productions.
 
 ## Usage
