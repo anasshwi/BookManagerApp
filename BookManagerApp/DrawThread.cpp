@@ -96,8 +96,12 @@ void DrawAppWindow(void* common_ptr)
 						std::lock_guard<std::mutex> lock(common->mtx);
 						common->Index = i;
 
+						common->info_ready = false;
+						common->img_ready = false;
 						common->download_info_desc.store(true);
 						common->cv2.notify_all();
+						common->download_img.store(true);
+						common->cv3.notify_all();
 						show_detail_window = true;
 					}
 
@@ -140,7 +144,7 @@ void DrawAppWindow(void* common_ptr)
 		ImGui::NewLine();
 
 		
-		if (common->info_ready) {
+		if (common->info_ready && common->img_ready) {
 			if (std::find(common->FavBooks.begin(), common->FavBooks.end(), common->books[common->Index]) != common->FavBooks.end()) {
 				ImGui::Text("Added to Favorites");
 			}
@@ -152,8 +156,8 @@ void DrawAppWindow(void* common_ptr)
 				}
 
 			}
-
 			ImGui::SameLine();
+
 			if ((common->books[common->Index].coverID != -1)) {
 				if (ImGui::Button("Show Cover")) {
 					my_image_width = 0;
@@ -173,8 +177,6 @@ void DrawAppWindow(void* common_ptr)
 			ImGui::Text("Loading Data");
 		}
 
-		
-		
 
 		if (ImGui::Button("Close")) {
 			show_detail_window = false;
@@ -238,6 +240,10 @@ void DrawAppWindow(void* common_ptr)
 
 				if (ImGui::BeginPopup(("NotePopup_" + std::to_string(i)).c_str())) {
 					static char note[256] = "";  // Buffer for note input
+					if (!common->FavBooks[i].personal_note.empty()) {
+						strncpy_s(note, common->FavBooks[i].personal_note.c_str(), sizeof(note) - 1);
+						note[sizeof(note) - 1] = '\0';  // Ensure null termination
+					}
 					ImGui::InputTextMultiline("##note", note, IM_ARRAYSIZE(note));
 
 					if (ImGui::Button("Save")) {
@@ -343,5 +349,6 @@ void DrawThread::operator()(CommonObjects& common)
 	common.exit_flag.store(true);
 	common.cv.notify_all();
 	common.cv2.notify_all();
+	common.cv3.notify_all();
 }
 

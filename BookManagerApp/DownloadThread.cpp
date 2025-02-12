@@ -184,10 +184,34 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common)
 						}
 					}
 				}
-			}
+			}			
+		}
+		catch (const nlohmann::json::exception& e) {
+			std::cerr << "JSON Error: " << e.what() << std::endl;
+		}
+		
+		//Releasing the lock after finishing the job.
+		common.info_ready = true;
+		common.download_info_desc.store(false);
+	}
 
+}
+void DownloadThread::getImage(CommonObjects& common)
+{
+	//Function that gets Image of selected books, works as a infinite while loop that waits for requests to search for that info.
+	while (!common.exit_flag.load()) {
+		std::unique_lock<std::mutex> lock(common.mtx);
+
+		//Waits for the lock to be released and for a search request to be made.
+		common.cv3.wait(lock, [&common] {return common.download_img.load() || common.exit_flag.load(); });
+
+		if (common.exit_flag.load()) {
+			break;
+		}
+		common.img_ready = false;
+		try {
 			//Getting the cover img
-			if (common.books[common.Index].coverID != -1) 
+			if (common.books[common.Index].coverID != -1)
 			{
 				//First try getting the image:
 				httplib::Client imgCli("https://covers.openlibrary.org");
@@ -196,15 +220,15 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common)
 				std::cout << cover_url << "\n\n";
 
 				auto img = imgCli.Get(cover_url.c_str());
-				if (img && img->status == 200) 
+				if (img && img->status == 200)
 				{
 					//Image retreved succesfully:
-					std::vector<unsigned char> imagedata (img->body.begin(), img->body.end());
+					std::vector<unsigned char> imagedata(img->body.begin(), img->body.end());
 
 					common.books[common.Index].image = imagedata;
 					std::cout << "Image Downloaded succesfully!\n\n";
 				}
-				else if (img && (img->status == 301 || img->status == 302)) 
+				else if (img && (img->status == 301 || img->status == 302))
 				{
 					//URL got redirected once
 					std::string new_url = img->get_header_value("Location");
@@ -212,7 +236,7 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common)
 
 					// Handle Redirection of image's Url
 					std::string archive_prefix = "https://archive.org";
-					if (new_url.find(archive_prefix) == 0) 
+					if (new_url.find(archive_prefix) == 0)
 					{
 						new_url = new_url.substr(archive_prefix.length());
 					}
@@ -222,24 +246,24 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common)
 					auto redirected = reCli.Get(new_url.c_str());
 
 					//Trying the redirected Url to get the image
-					if (redirected && redirected->status == 200) 
+					if (redirected && redirected->status == 200)
 					{
 						std::vector<unsigned char> imagedata(redirected->body.begin(), redirected->body.end());
 
 						common.books[common.Index].image = imagedata;
 						std::cout << "Image Downloaded succesfully!\n\n";
 					}
-					else if (redirected && (redirected->status == 301 || redirected->status == 302)) 
+					else if (redirected && (redirected->status == 301 || redirected->status == 302))
 					{
 						//Got redirected again
 						std::string redirectedAgain = redirected->get_header_value("Location");
-						std::cout<< "Redirected again to:" << redirectedAgain << "\n\n";
+						std::cout << "Redirected again to:" << redirectedAgain << "\n\n";
 
 						// splitting the url to domain and path:
 						size_t domain_end_pos = redirectedAgain.find('/', 8);  // 8 to skip "https://"
 
 						//seperating the Url to base and path:
-						if (domain_end_pos != std::string::npos) 
+						if (domain_end_pos != std::string::npos)
 						{
 							//Extract the base url:
 							std::string base_url = redirectedAgain.substr(0, domain_end_pos);
@@ -249,7 +273,7 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common)
 
 							httplib::Client reReCli(base_url);
 							auto newRequest = reReCli.Get(path);
-							if (newRequest && newRequest->status == 200) 
+							if (newRequest && newRequest->status == 200)
 							{
 								//Trying to get the image after redirected twice
 								std::vector<unsigned char> imagedata(newRequest->body.begin(), newRequest->body.end());
@@ -261,13 +285,13 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common)
 								std::cout << "failed to download image from 2 Redirections..." << "Status:" << (newRequest ? newRequest->status : -1) << "\n\n";
 							}
 						}
-						else 
+						else
 						{
 							std::cout << "failed to seperate base and path...\n\n";
 						}
-						
+
 					}
-					else 
+					else
 					{
 						std::cout << "failed to download image from Archives..." << "Status:" << (redirected ? redirected->status : -1) << "\n\n";
 					}
@@ -277,15 +301,15 @@ void DownloadThread::getDescInfoDesc(CommonObjects& common)
 					std::cout << "failed to download image...\n\n";
 				}
 			}
-			
+
 		}
 		catch (const nlohmann::json::exception& e) {
 			std::cerr << "JSON Error: " << e.what() << std::endl;
 		}
-		
+
 		//Releasing the lock after finishing the job.
-		common.info_ready = true;
-		common.download_info_desc.store(false);
+		common.img_ready = true;
+		common.download_img.store(false);
 	}
 
 }

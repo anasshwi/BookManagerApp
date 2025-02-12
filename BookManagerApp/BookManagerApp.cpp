@@ -17,9 +17,10 @@ int main()
     auto down_th = std::jthread([&] {down(common); });
     std::cout << "running...\n";
     auto downInfoDesc = std::jthread([&] {down.getDescInfoDesc(common); });
-    down_th.join();
-    draw_th.join();
-    downInfoDesc.join();
+    auto downImage = std::jthread([&] {down.getImage(common); });
+    //down_th.join();
+    //draw_th.join();
+    //downInfoDesc.join();
 
     return 0;
 }
