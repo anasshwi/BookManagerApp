@@ -32,6 +32,10 @@ The **Book Management Application** is a simple desktop application that allows 
 3. Open up the file named as: "BookManagerApp.sln"
 4. Run the Debugging tool to Test the App
    
+## Fixing Errors
+- If you face errors like missing .dll files (libcrypto.. / libssl...)
+- You can find these files in the following path: "\shared\HttpSrc\openssl\bin"
+- Or you can install OpenSSL from Shining Light Productions.
 
 ## Usage
 1. Launch the application.
