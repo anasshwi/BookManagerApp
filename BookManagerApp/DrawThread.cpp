@@ -269,7 +269,17 @@ void DrawAppWindow(void* common_ptr)
 			ImGui::NewLine();
 			if (ImGui::Button("Save Favorites to File")) {
 				SaveFavoritesToFile(common->FavBooks);
+				ImGui::OpenPopup("Saved!");
 			}
+				if (ImGui::BeginPopup("Saved!")) {
+					ImGui::Text("The Favorites List has been Saved!");
+
+					if (ImGui::Button("OK")) {
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndPopup();
+				}
 		}
 		
 
