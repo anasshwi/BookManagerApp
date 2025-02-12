@@ -11,6 +11,12 @@
 bool show_fav_list = false;
 bool show_detail_window = false;
 bool show_fav_detail_window = false;
+bool show_cover_window = false;
+
+// Global for Image
+int my_image_width = 0;
+int my_image_height = 0;
+ID3D11ShaderResourceView* my_texture = NULL;
 
 void SaveFavoritesToFile(const  std::vector<Book>& favorites) 
 {
@@ -133,25 +139,56 @@ void DrawAppWindow(void* common_ptr)
 		ImGui::Text("Rating: %.2f", common->books[common->Index].rating);
 		ImGui::NewLine();
 
-		if (ImGui::Button("Close")) {
-			show_detail_window = false;
-		}
+		
+		if (common->info_ready) {
+			if (std::find(common->FavBooks.begin(), common->FavBooks.end(), common->books[common->Index]) != common->FavBooks.end()) {
+				ImGui::Text("Added to Favorites");
+			}
+			else {
+				if (ImGui::Button("Add to Favorites"))
+				{
+					//show details
+					common->FavBooks.push_back(common->books[common->Index]);
+				}
 
-		ImGui::SameLine();
+			}
 
-		if (std::find(common->FavBooks.begin(), common->FavBooks.end(), common->books[common->Index]) != common->FavBooks.end()) {
-			ImGui::Text("Added to Favorites");
-		}
-		else if (common->info_ready) {
-			if (ImGui::Button("Add to Favorites"))
-			{
-				//show details
-				common->FavBooks.push_back(common->books[common->Index]);
+			ImGui::SameLine();
+			if ((common->books[common->Index].coverID != -1)) {
+				if (ImGui::Button("Show Cover")) {
+					my_image_width = 0;
+					my_image_height = 0;
+					my_texture = NULL;
+					LoadTexture(common->books[common->Index].image, &my_texture, &my_image_width, &my_image_height);
+
+					show_cover_window = true;
+				}
+			}
+			else {
+				ImGui::Text("No Image Data.");
 			}
 		}
 		else
 		{
 			ImGui::Text("Loading Data");
+		}
+
+		
+		
+
+		if (ImGui::Button("Close")) {
+			show_detail_window = false;
+		}
+		ImGui::End();
+	}
+
+	if (show_cover_window) {
+		ImGui::Begin("Image Viewer", &show_cover_window);
+		if (my_texture) {
+			ImGui::Image((void*)my_texture, ImVec2(200, 300));
+		}
+		else {
+			ImGui::Text("No Image Data");
 		}
 		ImGui::End();
 	}
@@ -263,6 +300,21 @@ void DrawAppWindow(void* common_ptr)
 		ImGui::NewLine();
 
 		ImGui::Text("Personal Notes: %s", common->FavBooks[common->FavIndex].personal_note.c_str());
+		ImGui::NewLine();
+
+		if ((common->FavBooks[common->FavIndex].coverID != -1)) {
+			if (ImGui::Button("Show Cover")) {
+				my_image_width = 0;
+				my_image_height = 0;
+				my_texture = NULL;
+				LoadTexture(common->FavBooks[common->FavIndex].image, &my_texture, &my_image_width, &my_image_height);
+
+				show_cover_window = true;
+			}
+		}
+		else {
+			ImGui::Text("No Image Data.");
+		}
 		ImGui::NewLine();
 
 		if (ImGui::Button("Close")) {

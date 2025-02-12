@@ -11,9 +11,11 @@ struct Book
 	std::vector<std::string> author_name;	// Handle multiple authors
 	int first_publish_year = 0;
 	std::string key;						//Work key ("/work/##########")
+	int coverID;					//Id to get the cover image later
 	std::string description;				//Summary from work api
 	double rating = 0.0;					//Average rating
 	std::string personal_note;				//A string to save a note
+	std::vector<unsigned char> image;
 
 	bool operator==(const Book& other) const {
 		return (title == other.title) && (first_publish_year == other.first_publish_year) && (author_name == other.author_name);
