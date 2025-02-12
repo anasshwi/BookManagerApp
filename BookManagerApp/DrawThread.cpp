@@ -21,7 +21,7 @@ ID3D11ShaderResourceView* my_texture = NULL;
 void SaveFavoritesToFile(const  std::vector<Book>& favorites) 
 {
 	//Function that saves favorites list of books to a file saved in the path: "${SolutionDir}\BookManagerApp\".
-	std::ofstream file("favorites.txt");
+	std::ofstream file("Favorites.txt");
 	if (!file) {
 		std::cout << "Error: Couldn't open file for writing\n";
 	}
@@ -272,7 +272,7 @@ void DrawAppWindow(void* common_ptr)
 				ImGui::OpenPopup("Saved!");
 			}
 				if (ImGui::BeginPopup("Saved!")) {
-					ImGui::Text("The Favorites List has been Saved!");
+					ImGui::Text("The Favorites List has been Saved in the App's Directory!");
 
 					if (ImGui::Button("OK")) {
 						ImGui::CloseCurrentPopup();
