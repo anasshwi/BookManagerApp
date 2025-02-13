@@ -234,16 +234,17 @@ void DrawAppWindow(void* common_ptr)
 				}
 
 				ImGui::TableSetColumnIndex(4);
+				static char note[256] = "";  // Buffer for note input
 				if (ImGui::Button(("Leave Note ## " + std::to_string(i)).c_str())){
-					ImGui::OpenPopup(("NotePopup_" + std::to_string(i)).c_str());
-				}
-
-				if (ImGui::BeginPopup(("NotePopup_" + std::to_string(i)).c_str())) {
-					static char note[256] = "";  // Buffer for note input
+					
 					if (!common->FavBooks[i].personal_note.empty()) {
 						strncpy_s(note, common->FavBooks[i].personal_note.c_str(), sizeof(note) - 1);
 						note[sizeof(note) - 1] = '\0';  // Ensure null termination
 					}
+					ImGui::OpenPopup(("NotePopup_" + std::to_string(i)).c_str());
+				}
+
+				if (ImGui::BeginPopup(("NotePopup_" + std::to_string(i)).c_str())) {
 					ImGui::InputTextMultiline("##note", note, IM_ARRAYSIZE(note));
 
 					if (ImGui::Button("Save")) {
